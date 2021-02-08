@@ -4,31 +4,96 @@
 #include <chrono>
 #include <sys/ioctl.h>
 #include <termios.h>
+#include <vector>
 
 using namespace std;
 using namespace std::chrono;
 
-namespace
-{
-
 int bytesWaiting;
 int position = 0;
 int direction = 0;
+int x, y;
 
-void print(const int& max)
+constexpr int width = 52;
+constexpr int height = 22;
+constexpr char block = '#';
+constexpr char snakeSegment = 'X';
+constexpr char food = 'o';
+
+struct Position
 {
-    for(int i=0; i<max;i++)
+    int x;
+    int y;
+};
+
+Position snakeHead;
+vector<Position> snakeBody;
+
+void setSnakeStartPosition()
+{
+    snakeHead.x = 3;
+    snakeHead.y = 1;
+
+    for(int i = 1; i < 4; ++i)
     {
-        if(position == i)
-        {
-            cout<<"x";
-        }
-        else
-        {
-            cout<<" ";
-        }
+        snakeBody.push_back(Position{i,1});
     }
-    cout<<endl;
+}
+
+bool isWall(const int& x, const int& y)
+{
+    if(y == 0 or y == (height-1) or x == 0 or x == (width-1))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool isSnakeBody(const int& x, const int& y)
+{
+    for(auto seg : snakeBody)
+    {
+         if(seg.x == x and seg.y == y)
+         {
+             return true;
+         }
+    }
+
+    return false;
+}
+
+
+
+void printBoard()
+{
+    for(y = 0; y < height; ++y)
+    {
+        for(x = 0; x < width; ++x)
+        {
+            if(isWall(x, y))
+            {
+                cout<<block;
+            }
+            else
+            {
+                if(isSnakeBody(x, y))
+                {
+                    cout<<snakeSegment;
+                }
+//                else if(isFood(x, y))
+//                {
+//                    cout<<food;
+//                }
+                else
+                {
+                    cout<<' ';
+                }
+            }
+        }
+        cout<<endl;
+    }
+
 }
 
 int _kbhit() {
@@ -83,7 +148,8 @@ void reactionOnKeyboard(const char ch)
 
 int main()
 {
-    int i = 0;
+    setSnakeStartPosition();
+
     while (true)
     {
         if(!direction)
@@ -97,7 +163,7 @@ int main()
                 --position;
         }
 
-        print(20);
+        printBoard();
         sleepGame(1000);
 
         if(_kbhit())   /// If keyboard hit
@@ -109,13 +175,12 @@ int main()
 
 
         clearBoard();
-        if(i == 20)
-            i = 0;
     }
+
     return 0;
 }
 
-}//namespace
+
 
 
 
