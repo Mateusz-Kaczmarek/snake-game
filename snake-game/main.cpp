@@ -9,61 +9,115 @@
 using namespace std;
 using namespace std::chrono;
 
-int bytesWaiting;
-int position = 0;
-int direction = 0;
-int x, y;
-
-constexpr int width = 52;
-constexpr int height = 22;
-constexpr char block = '#';
-constexpr char snakeSegment = 'X';
-constexpr char food = 'o';
-
 struct Position
 {
     int x;
     int y;
 };
 
-Position snakeHead;
-vector<Position> snakeBody;
-
-void setSnakeStartPosition()
+enum class MoveDirection
 {
-    snakeHead.x = 3;
-    snakeHead.y = 1;
+    RIGHT,
+    LEFT,
+    UP,
+    DOWN
+};
 
+int bytesWaiting;
+int position = 0;
+int x, y;
+
+constexpr int width = 52;
+constexpr int height = 22;
+char board[width][height];
+constexpr char wallSegment = '#';
+constexpr char snakeSegment = 'X';
+constexpr char food = 'o';
+constexpr char emptyField = ' ';
+
+Position snakeHead;
+Position snakeTail;
+MoveDirection direction = MoveDirection::RIGHT;
+
+void updateTailPosition()
+{
+    if(board[snakeTail.x+1][snakeTail.y] == snakeSegment)
+    {
+      snakeTail.x += 1;
+    }
+    else if(board[snakeTail.x-1][snakeTail.y] == snakeSegment)
+    {
+      snakeTail.x -= 1;
+    }
+    else if(board[snakeTail.x][snakeTail.y+1] == snakeSegment)
+    {
+      snakeTail.y += 1;
+    }
+    else
+    {
+      snakeTail.y -= 1;
+    }
+}
+
+void updateSnakePositionOnBoard()
+{
+    switch(direction)
+    {
+    case MoveDirection::RIGHT:
+        snakeHead.x += 1;
+        board[snakeHead.x][snakeHead.y] = snakeSegment;
+        board[snakeTail.x][snakeTail.y] = emptyField;
+        updateTailPosition();
+        break;
+    case MoveDirection::LEFT:
+        snakeHead.x -= 1;
+        board[snakeHead.x][snakeHead.y] = snakeSegment;
+        board[snakeTail.x][snakeTail.y] = emptyField;
+        updateTailPosition();
+        break;
+    case MoveDirection::UP:
+        snakeHead.y -= 1;
+        board[snakeHead.x][snakeHead.y] = snakeSegment;
+        board[snakeTail.x][snakeTail.y] = emptyField;
+        updateTailPosition();
+        break;
+    case MoveDirection::DOWN:
+        snakeHead.y += 1;
+        board[snakeHead.x][snakeHead.y] = snakeSegment;
+        board[snakeTail.x][snakeTail.y] = emptyField;
+        updateTailPosition();
+        break;
+    }
+}
+
+void setUpSnakeStartPosition()
+{
     for(int i = 1; i < 4; ++i)
     {
-        snakeBody.push_back(Position{i,1});
+        board[i][1] = snakeSegment;
     }
+
+    snakeHead = {3,1};
+    snakeTail = {1,1};
 }
 
-bool isWall(const int& x, const int& y)
+void setUpWallInBoard()
 {
-    if(y == 0 or y == (height-1) or x == 0 or x == (width-1))
+    for(y = 0; y < height; ++y)
     {
-        return true;
+        for(x = 0; x < width; ++x)
+        {
+            if(y == 0 or y == (height-1) or x == 0 or x == (width-1))
+            {
+                board[x][y] = wallSegment;
+            }
+            else
+            {
+                board[x][y] = emptyField;
+            }
+        }
     }
-
-    return false;
 }
-
-bool isSnakeBody(const int& x, const int& y)
-{
-    for(auto seg : snakeBody)
-    {
-         if(seg.x == x and seg.y == y)
-         {
-             return true;
-         }
-    }
-
-    return false;
-}
-
-
 
 void printBoard()
 {
@@ -71,29 +125,10 @@ void printBoard()
     {
         for(x = 0; x < width; ++x)
         {
-            if(isWall(x, y))
-            {
-                cout<<block;
-            }
-            else
-            {
-                if(isSnakeBody(x, y))
-                {
-                    cout<<snakeSegment;
-                }
-//                else if(isFood(x, y))
-//                {
-//                    cout<<food;
-//                }
-                else
-                {
-                    cout<<' ';
-                }
-            }
+            cout<<board[x][y];
         }
         cout<<endl;
     }
-
 }
 
 int _kbhit() {
@@ -134,11 +169,19 @@ void reactionOnKeyboard(const char ch)
     switch (ch)
     {
         case 'j':
-            direction = 1;
+            direction = MoveDirection::LEFT;
             break;
 
         case 'l':
-            direction = 0;
+            direction = MoveDirection::RIGHT;
+            break;
+
+        case 'i':
+            direction = MoveDirection::UP;
+            break;
+
+        case 'k':
+            direction = MoveDirection::DOWN;
             break;
 
         default:
@@ -146,33 +189,59 @@ void reactionOnKeyboard(const char ch)
     }
 }
 
+bool isNewDirectionValid(const char ch)
+{
+    bool valid = true;
+    switch (ch)
+    {
+        case 'j':
+            if(direction == MoveDirection::RIGHT)
+                valid = false;
+            break;
+
+        case 'l':
+            if(direction == MoveDirection::LEFT)
+                valid = false;
+            break;
+
+        case 'i':
+            if(direction == MoveDirection::DOWN)
+                valid = false;
+            break;
+
+        case 'k':
+            if(direction == MoveDirection::UP)
+                valid = false;
+            break;
+
+        default:
+            break;
+    }
+
+    return valid;
+}
+
 int main()
 {
-    setSnakeStartPosition();
+    setUpWallInBoard();
+    setUpSnakeStartPosition();
+    clearBoard();
 
     while (true)
     {
-        if(!direction)
-        {
-            if(position < 20)
-                ++position;
-        }
-        else
-        {
-            if(position > 0)
-                --position;
-        }
-
         printBoard();
-        sleepGame(1000);
+        sleepGame(100);
 
         if(_kbhit())   /// If keyboard hit
         {
             char k;
             cin >> k; /// Character
-            reactionOnKeyboard(k);
+            if(isNewDirectionValid(k))
+            {
+                reactionOnKeyboard(k);
+            }
         }
-
+        updateSnakePositionOnBoard();
 
         clearBoard();
     }
