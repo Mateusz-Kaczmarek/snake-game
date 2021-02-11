@@ -1,10 +1,12 @@
 #include <iostream>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 #include <chrono>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 using namespace std::chrono;
@@ -25,7 +27,9 @@ enum class MoveDirection
 
 int bytesWaiting;
 int position = 0;
-int x, y;
+int x, y, score = 0, frames = 1;
+int sleepTime = 200;
+int nextLvl = 3;
 
 constexpr int width = 52;
 constexpr int height = 22;
@@ -34,71 +38,133 @@ constexpr char wallSegment = '#';
 constexpr char snakeSegment = 'X';
 constexpr char food = 'o';
 constexpr char emptyField = ' ';
+vector<Position> snakeBody;
 
-Position snakeHead;
 Position snakeTail;
+Position foodPos;
 MoveDirection direction = MoveDirection::RIGHT;
 
-void updateTailPosition()
+void drawNewFoodPos()
 {
-    if(board[snakeTail.x+1][snakeTail.y] == snakeSegment)
+    bool isFoodOnSnakeBodyPosition = true;
+
+    while (isFoodOnSnakeBodyPosition)
     {
-      snakeTail.x += 1;
-    }
-    else if(board[snakeTail.x-1][snakeTail.y] == snakeSegment)
-    {
-      snakeTail.x -= 1;
-    }
-    else if(board[snakeTail.x][snakeTail.y+1] == snakeSegment)
-    {
-      snakeTail.y += 1;
-    }
-    else
-    {
-      snakeTail.y -= 1;
+        foodPos.x = rand() % (width - 1);
+        foodPos.y = rand() % (height - 1); // to avoid food on wall
+
+        for(auto it = snakeBody.begin(); it < snakeBody.end(); it++)
+        {
+            if(it->x == foodPos.x and it->y == foodPos.y)
+            {
+                continue;
+            }
+        }
+
+        if(snakeTail.x == foodPos.x and snakeTail.y == foodPos.y)
+        {
+            continue;
+        }
+
+        if(foodPos.x == 0)
+            foodPos.x += 1; // food can not be on wall
+
+        if(foodPos.y == 0)
+            foodPos.y += 1;
+
+        isFoodOnSnakeBodyPosition = false;
     }
 }
 
-void updateSnakePositionOnBoard()
+void addFoodOnBoard()
 {
+    drawNewFoodPos();
+    board[foodPos.x][foodPos.y] = food;
+}
+
+bool isFoodToEat()
+{
+    return ( snakeBody.back().x == foodPos.x and snakeBody.back().y == foodPos.y );
+}
+
+void addNewSegmentToSnakeBody()
+{
+    snakeBody.push_back(snakeTail);
+    std::rotate(snakeBody.rbegin(), snakeBody.rbegin() + 1, snakeBody.rend());
+}
+
+void updateSnakeBody()
+{
+    //we update all body move position by on exept head = last elemetn in vector
+    for(auto it = snakeBody.begin() ; it < snakeBody.end()-1; it++)
+    {
+        *it = *(it+1);
+    }
+}
+
+void addSnakeInBoard()
+{
+    for(auto el : snakeBody)
+    {
+        board[el.x][el.y] = snakeSegment;
+    }
+}
+
+bool isCollision()
+{
+    auto head = snakeBody.back();
+
+    if(head.y == 0 or head.y == (height-1) or head.x == 0 or head.x == (width-1))
+    {
+        return true;
+    }
+
+    //check in snake body if head exist more than once
+    for(auto it = snakeBody.begin(); it < snakeBody.end()-1; it++)
+    {
+        if(it->x == head.x and it->y == head.y)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void updateSnakePosition()
+{
+    snakeTail = snakeBody.front();
+    updateSnakeBody();
+
     switch(direction)
     {
-    case MoveDirection::RIGHT:
-        snakeHead.x += 1;
-        board[snakeHead.x][snakeHead.y] = snakeSegment;
-        board[snakeTail.x][snakeTail.y] = emptyField;
-        updateTailPosition();
+    case MoveDirection::RIGHT:      
+        snakeBody.back().x += 1;
         break;
     case MoveDirection::LEFT:
-        snakeHead.x -= 1;
-        board[snakeHead.x][snakeHead.y] = snakeSegment;
-        board[snakeTail.x][snakeTail.y] = emptyField;
-        updateTailPosition();
+        snakeBody.back().x -= 1;
         break;
     case MoveDirection::UP:
-        snakeHead.y -= 1;
-        board[snakeHead.x][snakeHead.y] = snakeSegment;
-        board[snakeTail.x][snakeTail.y] = emptyField;
-        updateTailPosition();
+        snakeBody.back().y -= 1;
         break;
     case MoveDirection::DOWN:
-        snakeHead.y += 1;
-        board[snakeHead.x][snakeHead.y] = snakeSegment;
-        board[snakeTail.x][snakeTail.y] = emptyField;
-        updateTailPosition();
+        snakeBody.back().y += 1;
         break;
     }
+}
+
+void removeSnakeTaileFromBoard()
+{
+    board[snakeTail.x][snakeTail.y] = emptyField;
 }
 
 void setUpSnakeStartPosition()
 {
     for(int i = 1; i < 4; ++i)
     {
-        board[i][1] = snakeSegment;
+        snakeBody.push_back({i,1});
     }
-
-    snakeHead = {3,1};
-    snakeTail = {1,1};
+    addSnakeInBoard();
 }
 
 void setUpWallInBoard()
@@ -121,6 +187,7 @@ void setUpWallInBoard()
 
 void printBoard()
 {
+    cout<<"FRAMES: "<<frames<<"                           "<<"SCORE: "<<score<<endl;
     for(y = 0; y < height; ++y)
     {
         for(x = 0; x < width; ++x)
@@ -145,7 +212,6 @@ int _kbhit() {
         initialized = true;
     }
 
-    //int bytesWaiting;
     ioctl(STDIN, FIONREAD, &bytesWaiting);
     return bytesWaiting;
 }
@@ -159,7 +225,7 @@ void sleepGame(int milliseconds)
     }
 }
 
-void clearBoard()
+void clearScreen()
 {
     system("clear");
 }
@@ -223,14 +289,21 @@ bool isNewDirectionValid(const char ch)
 
 int main()
 {
+    srand(time(NULL));
     setUpWallInBoard();
     setUpSnakeStartPosition();
-    clearBoard();
+    addFoodOnBoard();
+    clearScreen();
 
     while (true)
     {
+        if(score != 0 and score == nextLvl and sleepTime > 20)
+        {
+            nextLvl += 3;
+            sleepTime -= 10;
+        }
         printBoard();
-        sleepGame(100);
+        sleepGame(sleepTime);
 
         if(_kbhit())   /// If keyboard hit
         {
@@ -241,11 +314,33 @@ int main()
                 reactionOnKeyboard(k);
             }
         }
-        updateSnakePositionOnBoard();
 
-        clearBoard();
+        updateSnakePosition();
+
+        if(isFoodToEat())
+        {
+            addFoodOnBoard();
+            addNewSegmentToSnakeBody();
+            score++;
+        }
+        else
+        {
+            removeSnakeTaileFromBoard();
+        }
+
+        addSnakeInBoard();
+
+        if(isCollision())
+        {
+            break;
+        }
+
+        clearScreen();
+        frames++;
     }
 
+    cout<<"                    GAME OVER"<<endl;
+    cout<<"                   YOUR SCORE: "<<score<<endl;
     return 0;
 }
 
