@@ -26,7 +26,6 @@ enum class MoveDirection
 };
 
 int bytesWaiting;
-int position = 0;
 int x, y, score = 0, frames = 1;
 int sleepTime = 200;
 int nextLvl = 3;
@@ -44,7 +43,7 @@ Position snakeTail;
 Position foodPos;
 MoveDirection direction = MoveDirection::RIGHT;
 
-void drawNewFoodPos()
+void drawNewFoodPos() //Food
 {
     bool isFoodOnSnakeBodyPosition = true;
 
@@ -76,24 +75,24 @@ void drawNewFoodPos()
     }
 }
 
-void addFoodOnBoard()
+void addFoodOnBoard() //Food
 {
     drawNewFoodPos();
     board[foodPos.x][foodPos.y] = food;
 }
 
-bool isFoodToEat()
+bool isFoodToEat() //Food
 {
     return ( snakeBody.back().x == foodPos.x and snakeBody.back().y == foodPos.y );
 }
 
-void addNewSegmentToSnakeBody()
+void addNewSegmentToSnakeBody() //Snake
 {
     snakeBody.push_back(snakeTail);
     std::rotate(snakeBody.rbegin(), snakeBody.rbegin() + 1, snakeBody.rend());
 }
 
-void updateSnakeBody()
+void updateSnakeBody() //Snake
 {
     //we update all body move position by on exept head = last elemetn in vector
     for(auto it = snakeBody.begin() ; it < snakeBody.end()-1; it++)
@@ -102,7 +101,7 @@ void updateSnakeBody()
     }
 }
 
-void addSnakeInBoard()
+void addSnakeInBoard() //Board
 {
     for(auto el : snakeBody)
     {
@@ -110,7 +109,7 @@ void addSnakeInBoard()
     }
 }
 
-bool isCollision()
+bool isCollision() //Game
 {
     auto head = snakeBody.back();
 
@@ -131,7 +130,7 @@ bool isCollision()
     return false;
 }
 
-void updateSnakePosition()
+void updateSnakePosition() //Snake
 {
     snakeTail = snakeBody.front();
     updateSnakeBody();
@@ -153,12 +152,12 @@ void updateSnakePosition()
     }
 }
 
-void removeSnakeTaileFromBoard()
+void removeSnakeTaileFromBoard() //Board
 {
     board[snakeTail.x][snakeTail.y] = emptyField;
 }
 
-void setUpSnakeStartPosition()
+void setUpSnakeStartPosition() //Snake
 {
     for(int i = 1; i < 4; ++i)
     {
@@ -167,7 +166,7 @@ void setUpSnakeStartPosition()
     addSnakeInBoard();
 }
 
-void setUpWallInBoard()
+void setUpWallInBoard() //Board
 {
     for(y = 0; y < height; ++y)
     {
@@ -185,7 +184,7 @@ void setUpWallInBoard()
     }
 }
 
-void printBoard()
+void printBoard() //Board
 {
     cout<<"FRAMES: "<<frames<<"                           "<<"SCORE: "<<score<<endl;
     for(y = 0; y < height; ++y)
@@ -198,7 +197,8 @@ void printBoard()
     }
 }
 
-int _kbhit() {
+int _kbhit() //Game
+{
     static const int STDIN = 0;
     static bool initialized = false;
 
@@ -216,7 +216,7 @@ int _kbhit() {
     return bytesWaiting;
 }
 
-void sleepGame(int milliseconds)
+void sleepGame(int milliseconds) //Game
 {
     auto now = system_clock::now();
     system_clock::time_point timeEnd = now + duration<int, std::milli>(milliseconds);
@@ -225,12 +225,12 @@ void sleepGame(int milliseconds)
     }
 }
 
-void clearScreen()
+void clearScreen() //Game
 {
     system("clear");
 }
 
-void reactionOnKeyboard(const char ch)
+void reactionOnKeyboard(const char ch) //Game
 {
     switch (ch)
     {
@@ -255,7 +255,7 @@ void reactionOnKeyboard(const char ch)
     }
 }
 
-bool isNewDirectionValid(const char ch)
+bool isNewDirectionValid(const char ch) //Game
 {
     bool valid = true;
     switch (ch)
