@@ -1,13 +1,15 @@
 #pragma once
 #include "Position.hpp"
+#include <vector>
 
 class Food
 {
 public:
-   void drawNewFoodPos();
-   void addFoodOnBoard();
-   bool isFoodToEat();
+   void drawNewFoodPos(const std::vector<Position>&, const Position&, const int&, const int&);
+   bool isFoodToEat(const std::vector<Position>&);
+
+   Position getFoodPos();
 
 private:
-   Position foodPos;
+   Position mFoodPos;
 };

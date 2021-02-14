@@ -1,20 +1,25 @@
 #pragma once
+#include "Position.hpp"
+#include <vector>
 
 class Board
 {
 public:
-    Board(int w = 52, int h = 22):width(w), height(h)
+    Board(int w = 52, int h = 22):mWidth(w), mHeight(h)
     {
-        board[width][height];
+        mBoard[mWidth][mHeight];
     }
-    void printBoard();
-    void removeSnakeTaileFromBoard();
-    void addSnakeInBoard();
+    void printBoard(const int&, const int&);
+    void removeSnakeTaileFromBoard(const Position&);
+    void addSnakeInBoard(const std::vector<Position>&);
+    void addFoodOnBoard(const Position&);
     void setUpWallInBoard();
-    void reactionOnKeyboard(const char ch);
-    bool isNewDirectionValid(const char ch);
+
+    int getWidth();
+    int getHeight();
+
 private:
-    const int width;
-    const int height;
-    char board[1][1];
+    int mWidth;
+    int mHeight;
+    char mBoard[1][1];
 };

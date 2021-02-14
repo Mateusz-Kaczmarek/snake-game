@@ -6,6 +6,7 @@ namespace
 unsigned int nextElement = 1;
 int startPos = 1;
 int startPosLimit = 4;
+Position snakeHead;
 
 }
 
@@ -54,6 +55,31 @@ int startPosLimit = 4;
         }
 
         //addSnakeInBoard() - remember
+    }
+
+    bool Snake::isColisionWithOwnBoady()
+    {
+        snakeHead = mSnakeBody.back();
+
+        for(auto it = mSnakeBody.begin(); it < mSnakeBody.end()-1; it++)
+        {
+            if(it->x == snakeHead.x and it->y == snakeHead.y)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    const std::vector<Position>& Snake::getSnakePos()
+    {
+        return mSnakeBody;
+    }
+
+    const Position& Snake::getSnakeTail()
+    {
+        return mSnakeTail;
     }
 
 

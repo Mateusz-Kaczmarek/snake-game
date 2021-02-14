@@ -1,4 +1,5 @@
 #include <iostream>
+#include "../inc/Game.hpp"
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
@@ -11,19 +12,19 @@
 using namespace std;
 using namespace std::chrono;
 
-struct Position
-{
-    int x;
-    int y;
-};
+//struct Position
+//{
+//    int x;
+//    int y;
+//};
 
-enum class MoveDirection
-{
-    RIGHT,
-    LEFT,
-    UP,
-    DOWN
-};
+//enum class MoveDirection
+//{
+//    RIGHT,
+//    LEFT,
+//    UP,
+//    DOWN
+//};
 
 int bytesWaiting;
 int x, y, score = 0, frames = 1;
@@ -75,7 +76,7 @@ void drawNewFoodPos() //Food
     }
 }
 
-void addFoodOnBoard() //Food
+void addFoodOnBoard() //Board
 {
     drawNewFoodPos();
     board[foodPos.x][foodPos.y] = food;
@@ -289,58 +290,64 @@ bool isNewDirectionValid(const char ch) //Game
 
 int main()
 {
-    srand(time(NULL));
-    setUpWallInBoard();
-    setUpSnakeStartPosition();
-    addFoodOnBoard();
-    clearScreen();
+//    srand(time(NULL));
+//    setUpWallInBoard();
+//    setUpSnakeStartPosition();
+//    addFoodOnBoard();
+//    clearScreen();
 
-    while (true)
-    {
-        if(score != 0 and score == nextLvl and sleepTime > 20)
-        {
-            nextLvl += 3;
-            sleepTime -= 10;
-        }
-        printBoard();
-        sleepGame(sleepTime);
+//    while (true)
+//    {
+//        if(score != 0 and score == nextLvl and sleepTime > 20)
+//        {
+//            nextLvl += 3;
+//            sleepTime -= 10;
+//        }
+//        printBoard();
+//        sleepGame(sleepTime);
 
-        if(_kbhit())   /// If keyboard hit
-        {
-            char k;
-            cin >> k; /// Character
-            if(isNewDirectionValid(k))
-            {
-                reactionOnKeyboard(k);
-            }
-        }
+//        if(_kbhit())   /// If keyboard hit
+//        {
+//            char k;
+//            cin >> k; /// Character
+//            if(isNewDirectionValid(k))
+//            {
+//                reactionOnKeyboard(k);
+//            }
+//        }
 
-        updateSnakePosition();
+//        updateSnakePosition();
 
-        if(isFoodToEat())
-        {
-            addFoodOnBoard();
-            addNewSegmentToSnakeBody();
-            score++;
-        }
-        else
-        {
-            removeSnakeTaileFromBoard();
-        }
+//        if(isFoodToEat())
+//        {
+//            addFoodOnBoard();
+//            addNewSegmentToSnakeBody();
+//            score++;
+//        }
+//        else
+//        {
+//            removeSnakeTaileFromBoard();
+//        }
 
-        addSnakeInBoard();
+//        addSnakeInBoard();
 
-        if(isCollision())
-        {
-            break;
-        }
+//        if(isCollision())
+//        {
+//            break;
+//        }
 
-        clearScreen();
-        frames++;
-    }
+//        clearScreen();
+//        frames++;
+//    }
 
-    cout<<"                    GAME OVER"<<endl;
-    cout<<"                   YOUR SCORE: "<<score<<endl;
+//    cout<<"                    GAME OVER"<<endl;
+//    cout<<"                   YOUR SCORE: "<<score<<endl;
+
+
+    Game game;
+    game.startGame();
+
+
     return 0;
 }
 
