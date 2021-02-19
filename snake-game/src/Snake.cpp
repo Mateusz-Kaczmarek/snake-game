@@ -8,7 +8,7 @@ int startPos = 1;
 int startPosLimit = 4;
 Position snakeHead;
 
-}
+} //namspace
 
     void Snake::addNewSegmentToSnakeBody()
     {
@@ -18,31 +18,31 @@ Position snakeHead;
 
     void Snake::updateSnakeBody()
     {
-        //we update all body move position by on exept head = last elemetn in vector
+        //we update all body move position by one exept head = last elemetn in vector
         for(auto it = mSnakeBody.begin() ; it < mSnakeBody.end() - 1; it++)
         {
             *it = *(it + nextElement);
         }
     }
 
-    void Snake::updateSnakePosition()
+    void Snake::updateSnakePosition(const MoveDirection newDirection)
     {
         mSnakeTail = mSnakeBody.front();
         updateSnakeBody();
 
-        switch(mDirection)
+        switch(newDirection)
         {
         case MoveDirection::RIGHT:
-            mSnakeBody.back().x += 1;
+            mSnakeBody.back().x++;
             break;
         case MoveDirection::LEFT:
-            mSnakeBody.back().x -= 1;
+            mSnakeBody.back().x--;
             break;
         case MoveDirection::UP:
-            mSnakeBody.back().y -= 1;
+            mSnakeBody.back().y--;
             break;
         case MoveDirection::DOWN:
-            mSnakeBody.back().y += 1;
+            mSnakeBody.back().y++;
             break;
         }
     }

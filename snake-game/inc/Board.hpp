@@ -5,10 +5,8 @@
 class Board
 {
 public:
-    Board(int w = 52, int h = 22):mWidth(w), mHeight(h)
-    {
-        mBoard[mWidth][mHeight];
-    }
+    Board();
+    Board(int, int);
     void printBoard(const int&, const int&);
     void removeSnakeTaileFromBoard(const Position&);
     void addSnakeInBoard(const std::vector<Position>&);
@@ -21,5 +19,5 @@ public:
 private:
     int mWidth;
     int mHeight;
-    char mBoard[1][1];
+    std::vector<std::vector<char>> mBoard;
 };

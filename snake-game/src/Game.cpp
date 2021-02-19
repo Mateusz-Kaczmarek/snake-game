@@ -1,6 +1,6 @@
 #include "../inc/Game.hpp"
 #include <iostream>
-//#include <unistd.h>
+#include <unistd.h>
 #include <chrono>
 #include <sys/ioctl.h>
 #include <termios.h>
@@ -12,22 +12,31 @@ namespace
     bool valid = true;
     int bytesWaiting;
     Position snakeHead;
+    constexpr unsigned int nextLvlStep = 3;
+    constexpr unsigned int sleepTimeStep = 10;
+    constexpr unsigned int sleepTimeLimit = 20;
+}
+
+Game::Game(int width, int height):mBoard(width, height)
+{
 }
 
 void Game::startGame()
 {
+
     mBoard.setUpWallInBoard();
     mSnake.setUpSnakeStartPosition();
     mBoard.addSnakeInBoard(mSnake.getSnakePos());
+    mFood.drawNewFoodPos(mSnake.getSnakePos(), mSnake.getSnakeTail(), mBoard.getWidth(), mBoard.getHeight());
     mBoard.addFoodOnBoard(mFood.getFoodPos());
     clearScreen();
 
     while (true)
     {
-        if(mScore != 0 and mScore == mNextLvl and mSleepTime > 20)
+        if(mScore != 0 and mScore == mNextLvl and mSleepTime > sleepTimeLimit)
         {
-            mNextLvl += 3;
-            mSleepTime -= 10;
+            mNextLvl += nextLvlStep;
+            mSleepTime -= sleepTimeStep;
         }
         mBoard.printBoard(mFrames, mScore);
         sleepGame(mSleepTime);
@@ -42,10 +51,11 @@ void Game::startGame()
             }
         }
 
-        mSnake.updateSnakePosition();
+        mSnake.updateSnakePosition(mDirection);
 
         if(mFood.isFoodToEat(mSnake.getSnakePos()))
         {
+            mFood.drawNewFoodPos(mSnake.getSnakePos(), mSnake.getSnakeTail(), mBoard.getWidth(), mBoard.getHeight());
             mBoard.addFoodOnBoard(mFood.getFoodPos());
             mSnake.addNewSegmentToSnakeBody();
             mScore++;

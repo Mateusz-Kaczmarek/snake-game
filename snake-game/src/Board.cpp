@@ -10,6 +10,10 @@ namespace  {
     int x, y;
 }
 
+Board::Board(int w, int h):mWidth(w), mHeight(h), mBoard(mWidth, std::vector<char>(mHeight, emptyField))
+{
+}
+
 void Board::printBoard(const int& frames, const int& score)
 {
     std::cout<<"FRAMES: "<<frames<<"                           "<<"SCORE: "<<score<<std::endl;

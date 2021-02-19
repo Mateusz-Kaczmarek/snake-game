@@ -9,6 +9,7 @@ public:
    bool isFoodToEat(const std::vector<Position>&);
 
    Position getFoodPos();
+   void setFoodPos(Position newFoodPos);
 
 private:
    Position mFoodPos;

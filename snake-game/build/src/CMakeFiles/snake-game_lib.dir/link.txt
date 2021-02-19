@@ -1,0 +1,2 @@
+/usr/bin/ar qc libsnake-game_lib.a  CMakeFiles/snake-game_lib.dir/Board.cpp.o CMakeFiles/snake-game_lib.dir/Food.cpp.o CMakeFiles/snake-game_lib.dir/Game.cpp.o CMakeFiles/snake-game_lib.dir/Snake.cpp.o CMakeFiles/snake-game_lib.dir/main.cpp.o
+/usr/bin/ranlib libsnake-game_lib.a

@@ -9,7 +9,7 @@ class Snake
 public:
     void addNewSegmentToSnakeBody();
     void updateSnakeBody();
-    void updateSnakePosition();
+    void updateSnakePosition(const MoveDirection);
     void setUpSnakeStartPosition();
     bool isColisionWithOwnBoady();
 
@@ -19,5 +19,4 @@ public:
 private:
     std::vector<Position> mSnakeBody;
     Position mSnakeTail;
-    MoveDirection mDirection = MoveDirection::RIGHT;
 };

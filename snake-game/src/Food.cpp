@@ -2,38 +2,34 @@
 #include <time.h>
 #include <stdlib.h>
 
-namespace
+void Food::drawNewFoodPos(const std::vector<Position>& snakeBody, const Position& snakeTail, const int& width, const int& height)
 {
     bool isFoodOnSnakeBodyPosition = true;
 
-}
-void Food::drawNewFoodPos(const std::vector<Position>& snakeBody, const Position& snakeTail, const int& width, const int& height)
-{
-    srand(time(NULL));
-
     while (isFoodOnSnakeBodyPosition)
     {
+        srand(time(NULL));
         mFoodPos.x = rand() % (width - 1);
         mFoodPos.y = rand() % (height - 1); // to avoid food on wall
 
-        for(auto it = snakeBody.begin(); it < snakeBody.end(); it++)
-        {
-            if(it->x == mFoodPos.x and it->y == mFoodPos.y)
-            {
-                continue;
-            }
-        }
+        if(mFoodPos.x == 0)
+            ++mFoodPos.x; // food can not be on wall
+
+        if(mFoodPos.y == 0)
+            ++mFoodPos.y;
 
         if(snakeTail.x == mFoodPos.x and snakeTail.y == mFoodPos.y)
         {
             continue;
         }
 
-        if(mFoodPos.x == 0)
-            mFoodPos.x += 1; // food can not be on wall
-
-        if(mFoodPos.y == 0)
-            mFoodPos.y += 1;
+        for(auto el : snakeBody)
+        {
+            if(el.x == mFoodPos.x and el.y == mFoodPos.y)
+            {
+                continue;
+            }
+        }
 
         isFoodOnSnakeBodyPosition = false;
     }
@@ -47,4 +43,9 @@ bool Food::isFoodToEat(const std::vector<Position>& snakeBody)
 Position Food::getFoodPos()
 {
     return mFoodPos;
+}
+
+void Food::setFoodPos(Position newFoodPos)
+{
+    mFoodPos = newFoodPos;
 }

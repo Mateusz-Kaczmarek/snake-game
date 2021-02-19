@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/snake-game_tst.dir/FoodTest.cpp.o CMakeFiles/snake-game_tst.dir/SnakeTest.cpp.o CMakeFiles/snake-game_tst.dir/main.cpp.o  -o snake-game_tst ../src/libsnake-game_lib.a ../lib/libgtestd.a -lpthread 

@@ -7,6 +7,7 @@
 class Game
 {
 public:
+    Game(int, int);
     void startGame();
 
 private:
@@ -20,7 +21,7 @@ private:
     Board mBoard;
     Snake mSnake;
     Food  mFood;
-    int mSleepTime = 200;
+    unsigned int mSleepTime = 200;
     int mNextLvl = 3;
     int mScore = 0;
     int mFrames = 0;
